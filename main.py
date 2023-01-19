@@ -42,7 +42,7 @@ def getWeekDay(dia):
 
 
 def chat():
-    openai.api_key = "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"
+    openai.api_key = "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"
     prompt = "Era una noche oscura y tormentosa, y"
     model = "text-davinci-003"
     response = openai.Completion.create(
