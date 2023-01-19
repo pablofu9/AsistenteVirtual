@@ -4,6 +4,11 @@ import pywhatkit
 import wikipedia
 import webbrowser
 from datetime import datetime
+import pyjokes
+import requests
+import json
+import openai
+import os
 
 # Creamos una variable listener, para reconocer la voz
 listener = sr.Recognizer()
@@ -36,6 +41,43 @@ def getWeekDay(dia):
         return "domingo"
 
 
+def chat():
+    openai.api_key = "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"
+    prompt = "Era una noche oscura y tormentosa, y"
+    model = "text-davinci-003"
+    response = openai.Completion.create(
+        engine=model,
+        prompt=prompt,
+        temperature=0.5,
+        max_tokens=2048,
+        top_p=1,
+        frequency_penalty=1,
+        presence_penalty=1,
+    )
+    text = response.choices[0].text
+    print(text)
+
+
+def getTemperatura(ciudad):
+    api_key = "e6c9e5c846f8325be631e26e53bfb034"
+    base_url = "http://api.openweathermap.org/data/2.5/weather?"
+    complete_url = base_url + "appid=" + api_key + "&q=" + ciudad
+    response = requests.get(complete_url)
+    # Obtenemos la respuesta en formato JSON
+    x = response.json()
+    y = x["main"]
+    temperatura = y["temp"]
+    temperaturaConverted = kelvinToC(temperatura)
+    # Sacamos la temperatura de la ciudad que queramos y la transformamos a grados centigrados
+    return temperaturaConverted
+
+
+# Para que nos de la temperatura en grados centigrados
+def kelvinToC(grados):
+    centigrado = grados - 273, 15
+    return centigrado
+
+
 def talk(text):
     engine.say(text)
     engine.runAndWait()
@@ -56,9 +98,10 @@ def escuchar():
 
 # Variable que comprueba si el asistente si ha inicializado ya
 
-hablar = talk("¿Hola, que deseas hacer?")
+talk("¿Hola, que deseas hacer?")
 opcion = escuchar()
 print(opcion)
+
 """Vamos a hacer un switch case para las diferentes opciones, aunque lo vamos a hacer con ifs"""
 
 # Nos va a abrir una ventana en youtube y nos reproducira la music que le digamos
@@ -86,7 +129,7 @@ elif 'hora' in opcion:
     minutos = datetime.now().minute
     talk("Son las " + hora.__str__() + " " + minutos.__str__())
 
-elif 'dia' or 'día' in opcion:
+elif 'día' in opcion:
     # Usamos el metodo de arriba, porque la variable diaSemana si no nos devuelve un numero
     # Asi la convertimos para que nos devuelva el dia de la semana de la siguiente forma:
     # lunes, martes, miercoles...
@@ -94,3 +137,21 @@ elif 'dia' or 'día' in opcion:
     diaSemana = datetime.now().weekday()
     weekdayString = getWeekDay(diaSemana)
     talk("Hoy es " + weekdayString.__str__() + ", " + date.__str__())
+
+elif 'broma' in opcion:
+    # Metodo para contar bromas aleatorias
+    broma = pyjokes.get_joke(language='es', category='all')
+    talk(broma)
+
+elif 'temperatura' in opcion:
+    # Metodo que usa la api de https://home.openweathermap.org para darnos la temperatura de la ciudad que le digamos
+    talk("¿Que ciudad quieres comprobar?")
+    ciudad = escuchar()
+    temp = getTemperatura(ciudad).__str__()
+    talk("La temperatura en " + ciudad + " es de " + temp[0:2] + " grados centigrados")
+
+elif 'historia' in opcion:
+    chat()
+
+elif 'salir' in opcion:
+    talk('Siento no haberte sido de utilidad, hasta la próxima')

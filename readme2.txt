@@ -8,3 +8,10 @@ pip install google
 Para busquedas en google
 
 pip install wikipedia para busquedas
+
+pip install pyjokes Para las bromas
+
+ requests, json para sacar el tiempo por la API
+
+pip install openai
+
